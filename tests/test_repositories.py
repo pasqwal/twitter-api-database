@@ -41,6 +41,7 @@ class TestTweetRepository(TestCase):
         repository = TweetRepository()
         tweet = Tweet("a new tweet")
         repository.add(tweet)
-        repository.update(tweet.id, "an updated tweet")
+        tweet.text = "an updated tweet"
+        repository.update(tweet)
         self.assertEqual(tweet.text, "an updated tweet")
         self.assertIsNotNone(tweet.updated_at)
