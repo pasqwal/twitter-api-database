@@ -1,12 +1,15 @@
 from datetime import datetime
 
-class Tweet:
-    #def __init__(self, text, created_at=datetime.now().strftime("%d/%m/%Y %H:%M:%S")):
-    def __init__(self, text, created_at=datetime.now()):
-        self.id = None
-        self.text = text
-        self.created_at = created_at
-        self.updated_at = None
+from app import db
 
-    def updated(self):
-        self.updated_at = datetime.now()
+class Tweet(db.Model):
+    __tablename__ = "tweets"
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(280))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=None, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Tweet #{self.id}>"
+
+

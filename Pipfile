@@ -7,6 +7,11 @@ name = "pypi"
 flask = "*"
 flask-restx = "*"
 gunicorn = "*"
+psycopg2-binary = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+flask-script = "*"
+python-dotenv = "*"
 
 [dev-packages]
 flask-testing = "*"

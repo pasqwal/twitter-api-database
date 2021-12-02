@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 
 
-from app.db import tweet_repository
+from app import db
 from app.models import Tweet
 
 api = Namespace("tweets")
@@ -32,7 +32,7 @@ class TweetsRessource(Resource):
     # Here we use marshal_list_with (instead of marshal_with) to return a list of tweets
     @api.marshal_list_with(json_tweet)
     def get(self):
-        tweets = tweet_repository.all()
+        tweets = db.session.query(Tweet).all()
         return tweets, 200
 
     @api.marshal_with(json_tweet, code=201)
@@ -41,8 +41,9 @@ class TweetsRessource(Resource):
         # No need to verify if 'text' is present in body, or if it is a valid string since we use validate=True
         # body has already been validated using json_new_tweet schema
         text = api.payload['text']
-        tweet = Tweet(text)
-        tweet_repository.add(tweet)
+        tweet = Tweet(text=text)
+        db.session.add(tweet)
+        db.session.commit()
         return tweet, 201
 
 
@@ -53,7 +54,7 @@ class TweetRessource(Resource):
     @api.response(404, "Tweet not found")   # Used to control JSON response format
     @api.marshal_with(json_tweet)
     def get(self, tweet_id):
-        tweet = tweet_repository.get(tweet_id)
+        tweet = db.session.query(Tweet).get(tweet_id)
         if tweet is None:
             api.abort(404, "Tweet not found")   # abort will throw an exception and break execution flow (equivalent to 'return' keyword for an error)
         else:
@@ -63,17 +64,18 @@ class TweetRessource(Resource):
 
 
     def delete(self, tweet_id):
-        tweet = tweet_repository.get(tweet_id)
+        tweet = db.session.query(Tweet).get(tweet_id)
         if tweet is None:
             api.abort(404)
-        tweet_repository.remove(tweet_id)
+        db.session.delete(tweet)
+        db.session.commit()
 
         return None, 204
 
     @api.marshal_with(json_tweet, code=200)
     @api.expect(json_new_tweet, validate=True)  # Used to control JSON body format (and validate)
     def patch(self, tweet_id):
-        tweet = tweet_repository.get(tweet_id)
+        tweet = db.session.query(Tweet).get(tweet_id)
         if tweet is None:
             api.abort(404)
 
@@ -81,7 +83,7 @@ class TweetRessource(Resource):
         # No need to verify if 'text' is present in body, or if it is a valid string since we use validate=True
         # body has already been validated using json_new_tweet schema
         tweet.text = api.payload['text']
-        tweet_repository.update(tweet)
+        db.session.commit()
         return tweet, 200
 
 

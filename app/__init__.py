@@ -3,13 +3,25 @@
 from flask import Flask
 from flask_restx import Api
 
-from .db import tweet_repository
-from .models import Tweet
-tweet_repository.add(Tweet("a first tweet"))
-tweet_repository.add(Tweet("a second tweet"))
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+db = SQLAlchemy()
+migrate = Migrate()
+
 
 def create_app():
     app = Flask(__name__)
+
+    from config import get_config
+    app.config.from_object(get_config())
+    db.init_app(app)
+
+    migrate.init_app(app, db)
+    # cmd to migrate:
+    # pipenv run flask db init
+    # pipenv run flask db migrate -m "Initial migration"
+    # pipenv run flask db upgrade
 
     from .apis.tweets import api as tweets
     api = Api()
