@@ -1,0 +1,51 @@
+Docker_helper
+
+run my postgresl container :
+    - image name is "postgres:13-alpine"
+    - in background (-d)
+    - initialize password (-e) with value "password"
+    - give a container name "pg"
+
+        docker run -d -e POSTGRES_PASSWORD=password --name=pg postgres:13-alpine
+
+
+
+Access the Postgres database:
+    docker exec -it pg bash
+    psql -U postgres
+
+
+CREATE DATABASES
+    CREATE DATABASE twitter_api_flask;
+    CREATE DATABASE twitter_api_flask_test;
+    Then Exit the psql prompt: \q + Enter
+
+
+Prepare the requirements files for all dependancies:
+    pipenv lock --requirements > requirements.txt
+    pipenv lock --requirements --dev > requirements-dev.txt
+
+
+BUILD an Image and tag it as twitter-api:
+docker build -t twitter-api .
+
+RUN the container from image "twitter-api" and remove it automatically once it exits:
+    #docker run --name=twitter-api-docker twitter-api -p 5000:5000 --rm twitter-api-docker #Fail
+    #docker run -p 5000:5000 --rm twitter-api-docker -name twitter-api-docker twitter-api # fail
+    docker run -p 5000:5000 --name=twitter-api-docker twitter-api  # WORK
+    docker run -p 5000:5000 --name=twitter-api-docker --rm twitter-api # WORK
+
+
+    docker-compose up -d
+    docker-compose up -d --build
+
+MIGRATE our db to create the tables
+docker-compose run web flask db upgrade
+
+
+
+tmp :
+docker rm $(docker ps -q -f status=exited)
+docker rm $(docker ps -q -f status=exited)
+docker volume rm  $(docker volume ls -qf dangling=true)
+docker exec -it <DOCKER_ID> bash

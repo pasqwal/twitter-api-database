@@ -29,5 +29,6 @@ def create_app():
     api.init_app(app)
 
     app.config['ERROR_404_HELP'] = False
+    #app.logger.error(f"here is my database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
     return app

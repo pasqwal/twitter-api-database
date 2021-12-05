@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: db
+    networks:
+      - default
+    volumes:
+      - twitter_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=password
+  web:
+    build: .
+    container_name: web
+    networks:
+      - default
+    depends_on:
+      - db
+    command: ["flask", "run"]
+    volumes:
+      - .:/code
+    ports:
+      - 5000:5000
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/twitter_api_flask
+      - FLASK_RUN_HOST=0.0.0.0
+  test:
+    build: .
+    container_name: test
+    networks:
+      - default
+    depends_on:
+      - db
+    command: ["nosetests", "-s", "--exe"]
+    volumes:
+      - .:/code
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_ENV=test
+volumes:
+  twitter_postgres_data:

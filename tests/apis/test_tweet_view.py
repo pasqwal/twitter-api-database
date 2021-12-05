@@ -27,7 +27,6 @@ class TestTweetViews(TestCase):
         db.session.commit()
         response = self.client.get("/tweets/1")
         response_tweet = response.json
-        print(response_tweet)
         self.assertEqual(response_tweet["id"], 1)
         self.assertEqual(response_tweet["text"], 'First tweet')
         self.assertIsNotNone(response_tweet["created_at"])
